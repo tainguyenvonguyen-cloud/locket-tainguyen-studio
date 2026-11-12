@@ -1,0 +1,26 @@
+{
+  "name": "locket-ai-studio",
+  "version": "1.0.0",
+  "description": "Web App tạo ảnh bằng AI (Flux + Gemini) và bắn thẳng lên màn hình chính Locket Widget",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "cap:copy": "cap copy ios"
+  },
+  "keywords": [
+    "locket",
+    "locket-widget",
+    "ai-image-generator",
+    "flux",
+    "gemini"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/ios": "^6.2.0"
+  }
+}

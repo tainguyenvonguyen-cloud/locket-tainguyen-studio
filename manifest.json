@@ -1,0 +1,11 @@
+{
+  "name": "Locket AI Studio",
+  "short_name": "Locket AI",
+  "description": "Chụp ảnh vuông Locket, chỉnh màu AI và tự động tạo Caption thông minh bằng Gemini AI",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d0d11",
+  "theme_color": "#0d0d11",
+  "orientation": "portrait"
+}
+

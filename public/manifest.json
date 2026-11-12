@@ -1,0 +1,26 @@
+{
+  "name": "Locket Photobooth AI",
+  "short_name": "Locket AI",
+  "description": "Chụp Photobooth 4 kiểu, chỉnh sửa ảnh AI và bắn thẳng lên Locket của bạn bè",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#07080c",
+  "theme_color": "#07080c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+

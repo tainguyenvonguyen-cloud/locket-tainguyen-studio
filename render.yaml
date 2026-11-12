@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: locket-ai-studio
+    runtime: node
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: HF_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+

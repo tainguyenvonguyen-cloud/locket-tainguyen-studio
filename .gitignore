@@ -1,0 +1,6 @@
+node_modules/
+.env
+data/
+posted_moments_cache.json
+ios/App/Pods/
+.DS_Store

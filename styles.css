@@ -1,0 +1,737 @@
+:root {
+  --bg-dark: #0e2431;
+  --bg-bottom: #09131c;
+  --bg-card: rgba(18, 30, 42, 0.88);
+  --bg-elevated: rgba(32, 48, 64, 0.9);
+  --locket-gold: #d99b52;
+  --locket-gold-bright: #ffb800;
+  --text-main: #ffffff;
+  --text-muted: #9eb3c2;
+  --border-subtle: rgba(255, 255, 255, 0.14);
+  --radius-xl: 42px;
+  --radius-lg: 20px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(180deg, #174054 0%, #0f2537 55%, #09131d 100%);
+  color: var(--text-main);
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
+}
+
+.app-shell {
+  width: 100%;
+  max-width: 450px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 22px;
+  gap: 10px;
+}
+
+/* Top Bar matching screenshot */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 2px;
+}
+
+.pill-top-btn {
+  position: relative;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  padding: 8px 13px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.new-badge {
+  position: absolute;
+  top: -7px;
+  left: 8px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.friends-pill {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.circle-top-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Main Stage & 1:1 Locket Viewfinder */
+.main-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.locket-frame-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45);
+}
+
+.locket-frame {
+  width: 100%;
+  height: 100%;
+  background: #070b10;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#cameraStream,
+#photoCanvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#cameraStream.mirrored {
+  transform: scaleX(-1);
+}
+
+#liveOverlayCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Corner Buttons inside Camera Frame */
+.frame-corner-btn {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(95, 70, 50, 0.58);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 16px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 12;
+}
+
+.frame-corner-btn.top-left {
+  top: 16px;
+  left: 16px;
+}
+
+.frame-corner-btn.top-right {
+  top: 16px;
+  right: 16px;
+}
+
+.frame-corner-btn.active {
+  border-color: var(--locket-gold-bright);
+  box-shadow: 0 0 12px rgba(255, 184, 0, 0.35);
+}
+
+/* Floating Bottom Dock inside Camera Frame (Exact match to screenshot) */
+.frame-bottom-dock {
+  position: absolute;
+  bottom: 16px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 14;
+  pointer-events: auto;
+}
+
+.dock-icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(110, 88, 72, 0.62);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 20px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.2s, background 0.2s;
+}
+
+.dock-icon-btn:active {
+  transform: scale(0.9);
+}
+
+.dock-icon-btn.active {
+  background: rgba(217, 155, 82, 0.85);
+  border-color: #fff;
+  transform: translateY(-3px) scale(1.06);
+}
+
+.close-dock-btn {
+  background: rgba(45, 45, 52, 0.68);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Sub-picker Bar for Stickers */
+.sub-picker-bar {
+  position: absolute;
+  bottom: 74px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 6px 8px;
+  background: rgba(12, 18, 26, 0.78);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  z-index: 14;
+  scrollbar-width: none;
+}
+
+.sub-picker-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.sub-chip {
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid transparent;
+  color: #fff;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sub-chip.active {
+  background: var(--locket-gold);
+  color: #0d131a;
+  font-weight: 800;
+}
+
+/* Photobooth Countdown Overlay */
+.countdown-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 18;
+  pointer-events: none;
+}
+
+#countdownNumber {
+  font-size: 92px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 6px 28px rgba(0, 0, 0, 0.7);
+}
+
+#photoboothStepText {
+  font-size: 16px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.65);
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-top: 6px;
+}
+
+/* Screen Flash */
+.flash-overlay {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease-out;
+  z-index: 20;
+}
+
+.flash-overlay.active {
+  opacity: 0.95;
+}
+
+/* AI Scan Overlay */
+.ai-scan-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 18, 26, 0.38);
+  backdrop-filter: blur(2px);
+  z-index: 19;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--locket-gold-bright), #a855f7, transparent);
+  box-shadow: 0 0 16px var(--locket-gold-bright);
+  animation: scanMove 1.4s infinite ease-in-out;
+}
+
+@keyframes scanMove {
+  0% { top: 10%; }
+  50% { top: 88%; }
+  100% { top: 10%; }
+}
+
+.scan-badge {
+  background: rgba(15, 20, 28, 0.9);
+  border: 1px solid var(--locket-gold-bright);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Active Mode Banner */
+.active-mode-banner {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+/* Filter Strip */
+.filter-strip {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 2px;
+  scrollbar-width: none;
+}
+
+.filter-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-pill {
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-pill.active {
+  background: rgba(217, 155, 82, 0.25);
+  border-color: var(--locket-gold-bright);
+  color: #fff;
+}
+
+/* Shutter Row matching Locket screenshot */
+.controls-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shutter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 6px 10px;
+}
+
+.locket-side-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 30px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.locket-side-btn:active {
+  transform: scale(0.9);
+}
+
+.shutter-btn {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: transparent;
+  border: 5px solid var(--locket-gold);
+  padding: 5px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.12s ease;
+}
+
+.shutter-btn:active {
+  transform: scale(0.92);
+}
+
+.shutter-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.history-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  padding-top: 2px;
+}
+
+.history-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+}
+
+/* Editor Panel */
+.editor-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-panel-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ai-magic-btn {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vibe-selector {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.vibe-chip {
+  flex: 0 0 auto;
+  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vibe-chip.active {
+  background: rgba(217, 155, 82, 0.25);
+  border-color: var(--locket-gold-bright);
+  color: #fff;
+}
+
+.caption-box {
+  display: flex;
+  gap: 8px;
+}
+
+#captionInput {
+  flex: 1;
+  background: rgba(9, 15, 23, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--text-main);
+  font-size: 13.5px;
+  outline: none;
+}
+
+.generate-btn {
+  background: var(--locket-gold-bright);
+  color: #0d131a;
+  border: none;
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.suggestion-item {
+  text-align: left;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f3f4f6;
+  padding: 7px 11px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  border-color: var(--locket-gold-bright);
+}
+
+.style-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.style-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.badge-style-group {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.badge-style-btn {
+  flex: 0 0 auto;
+  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.badge-style-btn.active {
+  border-color: var(--locket-gold-bright);
+  color: var(--locket-gold-bright);
+}
+
+.editor-actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.secondary-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  padding: 12px 12px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-locket-btn {
+  flex: 1;
+  background: var(--locket-gold-bright);
+  color: #0d131a;
+  border: none;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Toast & Modals */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 34, 0.95);
+  border: 1px solid var(--locket-gold-bright);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 100;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(5px);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 90;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 400px;
+  background: #13202d;
+  border: 1px solid var(--border-subtle);
+  border-radius: 22px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  font-size: 16.5px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.modal-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.guide-steps {
+  padding-left: 18px;
+  font-size: 13px;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  line-height: 1.45;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.modal-input {
+  width: 100%;
+  background: #091119;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 11px 12px;
+  color: #fff;
+  font-size: 13.5px;
+}
+
+.modal-links a {
+  font-size: 12.5px;
+  color: var(--locket-gold-bright);
+  text-decoration: none;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}

@@ -1,0 +1,10 @@
+{
+  "appId": "com.locket.photobooth.studio",
+  "appName": "Locket Photobooth",
+  "webDir": "public",
+  "server": {
+    "hostname": "localhost",
+    "iosScheme": "https"
+  }
+}
+
