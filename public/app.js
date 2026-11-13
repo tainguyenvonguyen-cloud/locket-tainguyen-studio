@@ -2,6 +2,31 @@
 // LOCKET DIO AI STUDIO — CAMERA, PHOTOBOOTH 4 KIỂU, CAPTION STUDIO, FEED & CHAT
 // ============================================================================
 
+// Khung Photobooth mặc định tích hợp sẵn cho tất cả người dùng
+const BUILTIN_PB_FRAMES = [
+  {
+    id: 'frame_vuon_khoi',
+    name: 'Vươn Khơi',
+    dataUrl: '/frames/vuon_khoi.png',
+    mode: 'overlay',
+    hideFooter: true,
+    isBuiltin: true,
+  },
+];
+
+function mergeBuiltinFrames(customFrames) {
+  const list = Array.isArray(customFrames) ? [...customFrames] : [];
+  for (const bf of BUILTIN_PB_FRAMES) {
+    const idx = list.findIndex((f) => f.id === bf.id);
+    if (idx === -1) {
+      list.unshift(bf);
+    } else {
+      list[idx] = { ...bf, ...list[idx], dataUrl: bf.dataUrl, isBuiltin: true };
+    }
+  }
+  return list;
+}
+
 const state = {
   activeScreen: 'camera', // 'camera' | 'history' | 'chat' (mobile)
   camMode: 'camera', // 'camera' | 'photobooth'
@@ -41,8 +66,11 @@ const state = {
   pbTheme: 'black_film',
   pbFooterText: 'LOCKET PHOTOBOOTH 💛',
   pbIsCapturing: false,
-  pbCustomFrames: JSON.parse(localStorage.getItem('locket_custom_pb_frames') || '[]'),
-  pbActiveCustomFrameId: localStorage.getItem('locket_active_pb_frame_id') || '',
+  pbCustomFrames: mergeBuiltinFrames(JSON.parse(localStorage.getItem('locket_custom_pb_frames') || '[]')),
+  pbActiveCustomFrameId:
+    localStorage.getItem('locket_active_pb_frame_id') !== null
+      ? localStorage.getItem('locket_active_pb_frame_id')
+      : 'frame_vuon_khoi',
 
   // Locket Dio Caption Studio
   capType: 'text', // 'text' | 'music' | 'time' | 'battery' | 'weather' | 'review'
@@ -2008,8 +2036,8 @@ async function loadCustomPbFrames() {
   let loaded = false;
   const local = await idbGetPbFrames();
   if (local.frames && local.frames.length > 0) {
-    state.pbCustomFrames = local.frames;
-    state.pbActiveCustomFrameId = local.activeId || state.pbActiveCustomFrameId || '';
+    state.pbCustomFrames = mergeBuiltinFrames(local.frames);
+    state.pbActiveCustomFrameId = local.activeId || state.pbActiveCustomFrameId || 'frame_vuon_khoi';
     loaded = true;
   }
 
@@ -2017,9 +2045,13 @@ async function loadCustomPbFrames() {
     const res = await fetch('/api/photobooth/frames');
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.frames) && (data.frames.length > 0 || !loaded)) {
-        state.pbCustomFrames = data.frames;
-        state.pbActiveCustomFrameId = data.activeFrameId || '';
+      if (Array.isArray(data.frames)) {
+        state.pbCustomFrames = mergeBuiltinFrames(data.frames);
+        if (data.activeFrameId !== undefined && data.activeFrameId !== '') {
+          state.pbActiveCustomFrameId = data.activeFrameId;
+        } else if (!state.pbActiveCustomFrameId) {
+          state.pbActiveCustomFrameId = 'frame_vuon_khoi';
+        }
         await idbSetPbFrames(state.pbCustomFrames, state.pbActiveCustomFrameId);
         loaded = true;
       }
@@ -2028,11 +2060,14 @@ async function loadCustomPbFrames() {
     // Offline: giữ dữ liệu từ IndexedDB / localStorage
   }
 
-  if (loaded) {
-    renderCustomPbFramesList();
-    if (state.camMode === 'photobooth') {
-      renderPhotoboothComposite();
-    }
+  state.pbCustomFrames = mergeBuiltinFrames(state.pbCustomFrames);
+  if (localStorage.getItem('locket_active_pb_frame_id') === null && !state.pbActiveCustomFrameId) {
+    state.pbActiveCustomFrameId = 'frame_vuon_khoi';
+  }
+
+  renderCustomPbFramesList();
+  if (state.camMode === 'photobooth') {
+    renderPhotoboothComposite();
   }
 }
 
@@ -2125,19 +2160,24 @@ function renderCustomPbFramesList() {
           type="button"
           data-select-pb-frame="${escapeHtml(frame.id)}"
           title="${escapeHtml(frame.name)}"
-          class="w-12 h-12 rounded-xl overflow-hidden border transition block ${
+          class="w-14 h-14 rounded-xl overflow-hidden border transition block relative ${
             isActive ? 'border-2 border-yellow-400 ring-2 ring-yellow-400/30' : 'border-white/15 hover:border-white/40'
           }"
           style="background-image: linear-gradient(45deg, #1f2937 25%, transparent 25%), linear-gradient(-45deg, #1f2937 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1f2937 75%), linear-gradient(-45deg, transparent 75%, #1f2937 75%); background-size: 10px 10px; background-position: 0 0, 0 5px, 5px -5px, -5px 0;"
         >
           <img src="${frame.dataUrl}" alt="${escapeHtml(frame.name)}" class="w-full h-full object-cover" />
+          <span class="absolute inset-x-0 bottom-0 bg-black/75 text-[8px] font-extrabold text-white text-center truncate px-0.5 py-0.5 leading-tight">${escapeHtml(frame.name)}</span>
         </button>
-        <button
-          type="button"
-          data-delete-pb-frame="${escapeHtml(frame.id)}"
-          title="Xóa khung này"
-          class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-black flex items-center justify-center shadow hover:bg-red-500"
-        >✕</button>
+        ${
+          frame.isBuiltin
+            ? ''
+            : `<button
+                type="button"
+                data-delete-pb-frame="${escapeHtml(frame.id)}"
+                title="Xóa khung này"
+                class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-black flex items-center justify-center shadow hover:bg-red-500"
+              >✕</button>`
+        }
       </div>
     `;
   });
@@ -2329,11 +2369,15 @@ async function renderPhotoboothComposite() {
     ctx.roundRect(0, 0, cardW, cardH, 16);
     ctx.fill();
     ctx.shadowBlur = 0;
-    drawRoundedImage(ctx, images[idx], 20, 20, cardW - 40, cardW - 55, 10);
-    ctx.fillStyle = '#1e293b';
-    ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(idx === 3 ? dateStr : `#0${idx + 1}`, cardW / 2, cardH - 22);
+    if (isCustomOverlay) {
+      drawRoundedImage(ctx, images[idx], 12, 12, cardW - 24, cardW - 24, 8);
+    } else {
+      drawRoundedImage(ctx, images[idx], 20, 20, cardW - 40, cardW - 55, 10);
+      ctx.fillStyle = '#1e293b';
+      ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(idx === 3 ? dateStr : `#0${idx + 1}`, cardW / 2, cardH - 22);
+    }
     ctx.restore();
   });
   if (!hideDefaultFooter) {

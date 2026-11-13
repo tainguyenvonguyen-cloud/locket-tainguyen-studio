@@ -40,27 +40,50 @@ const { generateAIImage, editAIImage, inspectPhotoDetails } = require('./src/aiS
 const PORT = process.env.PORT || 3456;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const PB_FRAMES_FILE = path.join(__dirname, 'data', 'pb-frames.json');
+const BUILTIN_PB_FRAMES = [
+  {
+    id: 'frame_vuon_khoi',
+    name: 'Vươn Khơi',
+    dataUrl: '/frames/vuon_khoi.png',
+    mode: 'overlay',
+    hideFooter: true,
+    isBuiltin: true,
+  },
+];
 
 function readSavedPbFrames() {
   try {
-    if (!fs.existsSync(PB_FRAMES_FILE)) return { frames: [], activeFrameId: '' };
-    const raw = JSON.parse(fs.readFileSync(PB_FRAMES_FILE, 'utf8'));
-    return {
-      frames: Array.isArray(raw.frames) ? raw.frames : [],
-      activeFrameId: typeof raw.activeFrameId === 'string' ? raw.activeFrameId : '',
-    };
+    let frames = [];
+    let activeFrameId = 'frame_vuon_khoi';
+    if (fs.existsSync(PB_FRAMES_FILE)) {
+      const raw = JSON.parse(fs.readFileSync(PB_FRAMES_FILE, 'utf8'));
+      if (Array.isArray(raw.frames)) frames = raw.frames;
+      if (typeof raw.activeFrameId === 'string') activeFrameId = raw.activeFrameId;
+    }
+    for (const bf of BUILTIN_PB_FRAMES) {
+      if (!frames.some((f) => f.id === bf.id)) {
+        frames.unshift(bf);
+      }
+    }
+    return { frames, activeFrameId };
   } catch {
-    return { frames: [], activeFrameId: '' };
+    return { frames: BUILTIN_PB_FRAMES, activeFrameId: 'frame_vuon_khoi' };
   }
 }
 
 function writeSavedPbFrames(payload) {
   fs.mkdirSync(path.dirname(PB_FRAMES_FILE), { recursive: true });
+  let frames = Array.isArray(payload.frames) ? payload.frames : [];
+  for (const bf of BUILTIN_PB_FRAMES) {
+    if (!frames.some((f) => f.id === bf.id)) {
+      frames.unshift(bf);
+    }
+  }
   fs.writeFileSync(
     PB_FRAMES_FILE,
     JSON.stringify(
       {
-        frames: Array.isArray(payload.frames) ? payload.frames : [],
+        frames,
         activeFrameId: typeof payload.activeFrameId === 'string' ? payload.activeFrameId : '',
       },
       null,

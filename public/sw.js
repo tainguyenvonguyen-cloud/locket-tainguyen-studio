@@ -1,4 +1,4 @@
-const CACHE_NAME = 'locket-photobooth-pwa-v16';
+const CACHE_NAME = 'locket-photobooth-pwa-v17';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -7,6 +7,7 @@ const APP_SHELL = [
   '/manifest.json',
   '/apple-touch-icon.png',
   '/icon-512.png',
+  '/frames/vuon_khoi.png',
 ];
 
 self.addEventListener('install', (event) => {
