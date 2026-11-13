@@ -1135,12 +1135,22 @@
           <input id="locketEmail" type="email" required placeholder="email@gmail.com" class="w-full rounded-xl bg-black/50 border border-white/10 focus:border-yellow-400 focus:outline-none px-3.5 py-2.5 text-sm text-white" />
         </div>
         <div>
-          <label class="block text-xs text-gray-300 font-semibold mb-1">Mật khẩu Locket</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs text-gray-300 font-semibold">Mật khẩu Locket</label>
+            <button id="btnForgotPassword" type="button" class="text-[11px] text-[#f5a623] hover:underline">Quên / Chưa có mật khẩu?</button>
+          </div>
           <input id="locketPassword" type="password" required placeholder="••••••••" class="w-full rounded-xl bg-black/50 border border-white/10 focus:border-yellow-400 focus:outline-none px-3.5 py-2.5 text-sm text-white" />
         </div>
         <button id="btnSubmitLogin" type="submit" class="w-full py-3 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-extrabold text-sm transition">
           Đăng nhập Locket
         </button>
+
+        <div class="rounded-xl bg-white/5 border border-white/10 p-2.5 text-[11px] text-stone-300 leading-relaxed space-y-1">
+          <p class="font-bold text-white flex items-center gap-1"><span>💡</span> Lưu ý tài khoản Locket:</p>
+          <p>• <strong>Đã có mật khẩu:</strong> Nhập Email & Mật khẩu để đăng nhập trực tiếp.</p>
+          <p>• <strong>Tài khoản Apple ID / Google:</strong> Bấm <span class="text-[#f5a623] font-semibold">"Quên / Chưa có mật khẩu"</span> để Locket gửi link tạo mật khẩu vào hòm thư.</p>
+          <p>• <strong>Tài khoản Số điện thoại:</strong> Mở tab <span class="text-white font-semibold">"Nhập Token"</span> để dán token Locket.</p>
+        </div>
       </form>
 
       <form id="formTokenLogin" class="hidden space-y-3">
@@ -1211,7 +1221,7 @@
   </div>
 
   <script src="/native-api.js?v=20261112-11"></script>
-  <script src="/app.js?v=20261113-17"></script>
+  <script src="/app.js?v=20261113-18"></script>
   <script>
     (function () {
       const isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
@@ -1223,7 +1233,7 @@
           window.location.reload();
         });
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js?v=17')
+          navigator.serviceWorker.register('/sw.js?v=18')
             .then((reg) => { reg.update().catch(() => {}); })
             .catch(() => {});
         });

@@ -216,8 +216,20 @@ async function loginLocket(email, password) {
 
   const data = await response.json();
   if (!response.ok || data.error) {
-    const errMsg = data.error?.message || 'Đăng nhập Locket thất bại';
-    throw new Error(`Lỗi xác thực Locket: ${errMsg}`);
+    const rawMsg = data.error?.message || '';
+    let friendly = 'Đăng nhập Locket thất bại';
+    if (rawMsg.includes('EMAIL_NOT_FOUND')) {
+      friendly = 'Không tìm thấy tài khoản với email này. Hãy kiểm tra lại email hoặc mở app Locket để xem đúng email đăng ký.';
+    } else if (rawMsg.includes('INVALID_PASSWORD') || rawMsg.includes('INVALID_LOGIN_CREDENTIALS')) {
+      friendly = 'Email hoặc mật khẩu không chính xác. Nếu tài khoản của bạn đăng ký qua Apple ID / Google / Số điện thoại mà chưa có mật khẩu, hãy bấm "Quên / Đặt mật khẩu" để tạo mật khẩu!';
+    } else if (rawMsg.includes('USER_DISABLED')) {
+      friendly = 'Tài khoản Locket này đã bị vô hiệu hóa.';
+    } else if (rawMsg.includes('TOO_MANY_ATTEMPTS_TRY_LATER')) {
+      friendly = 'Tài khoản bị tạm khóa do nhập sai mật khẩu nhiều lần. Vui lòng thử lại sau vài phút hoặc bấm Quên mật khẩu.';
+    } else if (rawMsg) {
+      friendly = `Lỗi xác thực Locket: ${rawMsg}`;
+    }
+    throw new Error(friendly);
   }
 
   // Lấy thêm thông tin hồ sơ người dùng (ảnh đại diện, tên hiển thị)
@@ -295,6 +307,36 @@ async function refreshLocketToken(refreshToken) {
     refreshToken: data.refresh_token,
     localId: data.user_id,
   };
+}
+
+/**
+ * Gửi email đặt lại mật khẩu hoặc tạo mật khẩu mới cho tài khoản Locket (Apple ID / Google)
+ */
+async function sendLocketPasswordReset(email) {
+  const url = `${LOCKET_FIREBASE_AUTH_URL}:sendOobCode?key=${LOCKET_FIREBASE_API_KEY}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'User-Agent': LOCKET_DEVICE_UA,
+      'Content-Type': 'application/json',
+      'Accept': '*/*',
+      'X-Ios-Bundle-Identifier': LOCKET_BUNDLE_ID,
+      'X-Firebase-GMPID': LOCKET_GMP_ID,
+    },
+    body: JSON.stringify({
+      requestType: 'PASSWORD_RESET',
+      email: email.trim(),
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok || data.error) {
+    const raw = data.error?.message || '';
+    if (raw.includes('EMAIL_NOT_FOUND')) {
+      throw new Error('Email này chưa đăng ký tài khoản Locket.');
+    }
+    throw new Error(`Không thể gửi email đặt mật khẩu: ${raw}`);
+  }
+  return { success: true, email: data.email };
 }
 
 /**
@@ -1350,6 +1392,7 @@ async function reactToChatMessage(idToken, { conversationId, messageId, emoji = 
 module.exports = {
   loginLocket,
   refreshLocketToken,
+  sendLocketPasswordReset,
   getUserProfile,
   getAllFriends,
   uploadImageToLocketStorage,

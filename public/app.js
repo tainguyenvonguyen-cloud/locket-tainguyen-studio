@@ -3001,6 +3001,26 @@ formEmailLogin.addEventListener('submit', async (e) => {
   }
 });
 
+document.getElementById('btnForgotPassword')?.addEventListener('click', async () => {
+  const emailInput = document.getElementById('locketEmail');
+  const email = (emailInput?.value || '').trim();
+  const targetEmail = prompt('Nhập Email tài khoản Locket để nhận link đặt mật khẩu:', email);
+  if (!targetEmail || !targetEmail.trim()) return;
+
+  try {
+    const res = await fetch('/api/locket/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: targetEmail.trim() }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Gửi thất bại');
+    alert(`✉️ Đã gửi link đặt mật khẩu đến: ${targetEmail.trim()}.\nHãy mở hòm thư email của bạn (kiểm tra cả mục Spam/Thư rác), bấm vào link để đặt mật khẩu mới, sau đó quay lại đây đăng nhập!`);
+  } catch (err) {
+    alert(`❌ Lỗi gửi email: ${err.message}`);
+  }
+});
+
 formTokenLogin.addEventListener('submit', (e) => {
   e.preventDefault();
   const localId = document.getElementById('manualLocalId').value.trim();

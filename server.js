@@ -22,6 +22,7 @@ if (fs.existsSync(ENV_PATH)) {
 const {
   loginLocket,
   refreshLocketToken,
+  sendLocketPasswordReset,
   getAllFriends,
   uploadImageToLocketStorage,
   uploadVideoToLocketStorage,
@@ -233,6 +234,16 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { success: true, session: refreshed });
     }
 
+    // 3b. Quên mật khẩu / Đặt mật khẩu Locket qua Email (dành cho Apple ID / Google / Quên pass)
+    if (pathname === '/api/locket/forgot-password' && req.method === 'POST') {
+      const { email } = await parseJsonBody(req);
+      if (!email || !email.trim()) {
+        return sendJson(res, 400, { error: 'Vui lòng nhập Email tài khoản Locket.' });
+      }
+      const result = await sendLocketPasswordReset(email.trim());
+      return sendJson(res, 200, { success: true, result });
+    }
+
     // 4. Tạo ảnh bằng AI (Flux + Gemini/Pollinations)
     if (pathname === '/api/ai/generate-image' && req.method === 'POST') {
       const { prompt, style, tone, seed, geminiApiKey } = await parseJsonBody(req);
@@ -316,11 +327,11 @@ const server = http.createServer(async (req, res) => {
 
           const videoResult = videoBuffer
             ? await uploadVideoToLocketStorage(
-                videoBuffer,
-                activeLocalId,
-                activeToken,
-                videoMimeType || 'video/mp4'
-              )
+              videoBuffer,
+              activeLocalId,
+              activeToken,
+              videoMimeType || 'video/mp4'
+            )
             : { videoUrl: '', videoMd5: '' };
 
           const momentResponse = await postMomentToLocket({
