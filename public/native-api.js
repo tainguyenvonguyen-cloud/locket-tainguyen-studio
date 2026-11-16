@@ -15,6 +15,38 @@
     return;
   }
 
+  const platform =
+    typeof window.Capacitor.getPlatform === 'function' ? window.Capacitor.getPlatform() : 'ios';
+  const CLOUD_BACKEND_ORIGIN = 'https://locket-tainguyen-studio.onrender.com';
+
+  // Trên Android APK: dùng trực tiếp backend đám mây Render cho /api/* và tự động đồng bộ giao diện mới nhất (OTA)
+  if (platform === 'android') {
+    const origFetch = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+      const urlStr = typeof input === 'string' ? input : input?.url || '';
+      if (urlStr.startsWith('/api/') && window.location.hostname === 'localhost') {
+        return origFetch(`${CLOUD_BACKEND_ORIGIN}${urlStr}`, init);
+      }
+      return origFetch(input, init);
+    };
+
+    // Nếu đang mở bản đóng gói cục bộ (localhost) trong APK và có mạng -> tự động nạp bản web mới nhất trên Render
+    // để mỗi khi chủ web sửa code/giao diện thì App Android cập nhật ngay lập tức mà không cần cài lại APK!
+    if (window.location.hostname === 'localhost' && !window.sessionStorage.getItem('android_ota_checked')) {
+      window.sessionStorage.setItem('android_ota_checked', '1');
+      origFetch(`${CLOUD_BACKEND_ORIGIN}/api/health`, { method: 'GET', cache: 'no-store' })
+        .then((r) => {
+          if (r && r.ok) {
+            window.location.replace(`${CLOUD_BACKEND_ORIGIN}/?from_apk=1`);
+          }
+        })
+        .catch(() => {
+          // Nếu đang offline hoặc server đang khởi động, giữ nguyên giao diện gói sẵn trong APK
+        });
+    }
+    return;
+  }
+
   const LOCKET_FIREBASE_API_KEY = 'AIzaSyCQngaaXQIfJaH0aS2l7REgIjD7nL431So';
   const LOCKET_FIREBASE_AUTH_URL = 'https://identitytoolkit.googleapis.com/v1/accounts';
   const LOCKET_FIREBASE_TOKEN_URL = 'https://securetoken.googleapis.com/v1/token';

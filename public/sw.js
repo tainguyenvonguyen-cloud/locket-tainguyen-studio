@@ -1,4 +1,4 @@
-const CACHE_NAME = 'locket-photobooth-pwa-v18';
+const CACHE_NAME = 'locket-photobooth-pwa-v19';
 const APP_SHELL = [
   '/',
   '/index.html',

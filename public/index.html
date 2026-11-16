@@ -300,6 +300,18 @@
             👁️ Ai đã xem
           </button>
         </div>
+
+        <!-- Nút tải App Android (.APK) trực tiếp -->
+        <a
+          id="btnDownloadAndroidApk"
+          href="https://github.com/tainguyenvonguyen-cloud/locket-tainguyen-studio/releases/latest/download/Locket-Photobooth.apk"
+          target="_blank"
+          rel="noopener"
+          class="w-full py-2.5 px-3 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-400/35 text-emerald-300 text-xs font-extrabold flex items-center justify-center gap-2 transition"
+        >
+          <span>🤖</span>
+          <span>Tải App Android (.APK)</span>
+        </a>
       </div>
     </aside>
 
@@ -1220,11 +1232,16 @@
     </div>
   </div>
 
-  <script src="/native-api.js?v=20261112-11"></script>
-  <script src="/app.js?v=20261113-18"></script>
+  <script src="/native-api.js?v=20261116-19"></script>
+  <script src="/app.js?v=20261116-19"></script>
   <script>
     (function () {
-      const isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+      const isNativeApp =
+        !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ||
+        new URLSearchParams(window.location.search).get('from_apk') === '1';
+      if (isNativeApp) {
+        document.getElementById('btnDownloadAndroidApk')?.classList.add('hidden');
+      }
       if (!isNativeApp && 'serviceWorker' in navigator) {
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -1233,7 +1250,7 @@
           window.location.reload();
         });
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js?v=18')
+          navigator.serviceWorker.register('/sw.js?v=19')
             .then((reg) => { reg.update().catch(() => {}); })
             .catch(() => {});
         });

@@ -4,7 +4,12 @@
   "webDir": "public",
   "server": {
     "hostname": "localhost",
-    "iosScheme": "https"
+    "iosScheme": "https",
+    "androidScheme": "https",
+    "allowNavigation": [
+      "locket-tainguyen-studio.onrender.com",
+      "*.onrender.com"
+    ]
   }
 }
 
